@@ -1,0 +1,55 @@
+{% extends 'todo_app/base.html' %}
+
+{% block title %}Todo List{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Todo List</h2>
+            <a href="{% url 'todo_app:add_todo' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Todo
+            </a>
+        </div>
+
+        {% if todos %}
+            <div class="row">
+                {% for todo in todos %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 {% if todo.completed %}border-success{% endif %}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ todo.title }}</h5>
+                                <p class="card-text">{{ todo.description }}</p>
+                                <p class="card-text">
+                                    <small class="text-muted">Created: {{ todo.created_at|date:"M d, Y H:i" }}</small>
+                                </p>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" {% if todo.completed %}checked{% endif %} disabled>
+                                    <label class="form-check-label">Completed</label>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'todo_app:update_todo' todo.id %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <form action="{% url 'todo_app:delete_todo' todo.id %}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this todo?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No todos found. Click the "Add Todo" button to create one!
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
