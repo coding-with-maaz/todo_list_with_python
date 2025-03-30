@@ -1,0 +1,56 @@
+# Enable HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Serve static files directly
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^static/(.*)$ static/$1 [L]
+</IfModule>
+
+# Django WSGI Configuration
+<IfModule mod_wsgi.c>
+    WSGIDaemonProcess todo_app python-path=/home/username/virtualenv/todo_env/lib/python3.9/site-packages
+    WSGIProcessGroup todo_app
+    WSGIScriptAlias / /home/username/todo_frontend/passenger_wsgi.py
+</IfModule>
+
+# Handle Python files
+AddHandler wsgi-script .py
+Options +ExecCGI
+
+# Deny access to sensitive files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.(py|sqlite3|json|config)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Enable compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript
+</IfModule>
+
+# Set security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options nosniff
+    Header set X-Frame-Options SAMEORIGIN
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# Cache static files
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule> 
